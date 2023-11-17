@@ -56,8 +56,8 @@ class Camera {
 public:
     Vector3f eye, center, up;
 
-    Camera(const Vector3f& eyePos = Vector3f(0.0f, .5f, 1.f),
-        const Vector3f& centerPos = Vector3f(0.0f, .5f, 0.0f),
+    Camera(const Vector3f& eyePos = Vector3f(0.0f, .7f, 1.5f),
+        const Vector3f& centerPos = Vector3f(0.0f, .7f, 0.0f),
         const Vector3f& upVec = Vector3f(0.0f, 1.0f, 0.0f)) {
         eye = eyePos;
         center = centerPos;
@@ -117,8 +117,9 @@ Camera camera;
     glLoadIdentity();
     camera.look();
 }
-
-float parkSize = 3.0;// Increase the size of the park
+ 
+float parkSizex = 3.0;// Increase the size of the park
+float parkSizez = 1.5;
 void drawCylinder(float radius, float height, int slices, int stacks) {
     GLUquadric* quadric = gluNewQuadric();
 
@@ -137,12 +138,12 @@ void drawCylinder(float radius, float height, int slices, int stacks) {
     gluDeleteQuadric(quadric);
 }
 void drawGrass() {
-    glColor3f(0.1, 0.6, 0.1); // Green color for grass
+    glColor3f(0.1, 0.9, 0.1); // Green color for grass
     glBegin(GL_LINES);
-    for (double i = -parkSize/2; i <= parkSize/2; i += parkSize / 40) {
-        for (double j = -parkSize / 2; j <= parkSize / 2; j += parkSize / 40) {
-            glVertex3f(i, 0.01, j);
-            glVertex3f(i, 0.1, j); // Slightly above the ground
+    for (double i = -parkSizex/2; i <= parkSizex/2; i += parkSizex / 150) {
+        for (double j = -parkSizez/2; j <= parkSizez/2 ; j += parkSizez / 150) {
+            glVertex3f(i, 0.0, j);
+            glVertex3f(i, 0.03, j); // Slightly above the ground
         }
     }
     glEnd();
@@ -173,15 +174,15 @@ void drawUmbrella(float x, float y, float z) {
     glPushMatrix();
     glTranslated(x, y, z);
     glRotated(-90, 1, 0, 0);
-    drawCylinder(0.05, 0.5, 10, 2);
+    drawCylinder(0.02, 0.3, 10, 2);
     glPopMatrix();
 
     // Umbrella canopy
     glColor3f(1, 0, 0); // Red color for the canopy
     glPushMatrix();
-    glTranslated(x, y + 0.5, z);
+    glTranslated(x, y + 0.3, z);
     glRotated(-90, 1, 0, 0);
-    glutSolidCone(0.5, 0.2, 10, 2);
+    glutSolidCone(0.3, 0.1, 10, 2);
     glPopMatrix();
 }
 
@@ -190,45 +191,45 @@ void drawBee(float x, float y, float z) {
     glColor3f(1, 1, 0); // Yellow color for bees
     glPushMatrix();
     glTranslated(x, y, z);
-    glutSolidSphere(0.05, 10, 10);
+    glutSolidSphere(0.05, 5, 5);
     glPopMatrix();
 }
 
 // Function to decorate the park
-static void parkDecorator() {
+ void parkDecorator() {
     drawGrass();  // Add grass
 
     // Adjusted tree positions
-    drawTree(parkSize * 0.5, 0, parkSize * 0.5);
-    drawTree(-parkSize * 0.5, 0, -parkSize * 0.5);
+    drawTree(parkSizex * 0.5, 0, parkSizez * 0.5);
+    //drawTree(-parkSizex * 0.5, 0, -parkSizez * 0.5);
 
     // Adjusted umbrella position
-    drawUmbrella(parkSize * 0.3, 0, parkSize * 0.3);
+    drawUmbrella(parkSizex * 0.5, 0, -parkSizez * 0.3);
 
     // Add moving bees
-    static float beeX = 0, beeZ = 0;
+    static float beeX = -0.7, beeZ =-.9 ;
     drawBee(beeX, 0.2, beeZ);
     // Update bee positions for next frame (simple movement logic)
     beeX += (rand() % 3 - 1) * 0.1;
     beeZ += (rand() % 3 - 1) * 0.1;
 }
-double wallLength = parkSize;  // Length of the walls
-double ihatez = parkSize / 2;
- void drawWall(double length) {
+double wallLength = parkSizex;  // Length of the walls
+//double ihatez = parkSizex / 2;
+ void drawWall(double lengthx,double lengthz) {
     double wallThickness = 0.01;  // Hardcoded thickness
     glPushMatrix();
     glTranslated(0, 0, 0);
-    glScaled(length, wallThickness, length); // Scale wall according to specified length
+    glScaled(lengthx, wallThickness, lengthz); // Scale wall according to specified length
     glutSolidCube(1);
     glPopMatrix();
 }
-static void drawPark() {
+ void drawPark() {
     
 
     // Draw the ground
-    glColor3f(0.0, 0.1, 0.0); // Gray color for the ground
+    glColor3f(0.0, 1, 0.0); // Gray color for the ground
     glPushMatrix();
-    drawWall(parkSize);
+    drawWall(parkSizex,parkSizez);
     glPopMatrix();
     glPushMatrix();
     parkDecorator();
@@ -320,12 +321,13 @@ static void drawHuman() {
 void Keyboard(unsigned char key, int x, int y) {
     float d = 0.08;
     float moveSpeed = 0.3f;
-    float boundaryLimit = parkSize;
+    float boundaryLimitx = parkSizex/2;
+    float boundaryLimitz = parkSizez/2;
     switch (key) {
        
     case 'w':
         // Move forward
-        if (humanPosZ - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimit/2) {
+        if (humanPosZ - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimitz) {
             humanPosX += moveSpeed * sin(DEG2RAD(humanRotY));
             humanPosZ -= moveSpeed * cos(DEG2RAD(humanRotY));
         }
@@ -333,7 +335,7 @@ void Keyboard(unsigned char key, int x, int y) {
         break;
     case 's':
         // Move backward
-        if (humanPosZ + moveSpeed * cos(DEG2RAD(humanRotY)) < boundaryLimit/2) {
+        if (humanPosZ + moveSpeed * cos(DEG2RAD(humanRotY)) < boundaryLimitz) {
             humanPosX -= moveSpeed * sin(DEG2RAD(humanRotY));
             humanPosZ += moveSpeed * cos(DEG2RAD(humanRotY));
         }
@@ -341,7 +343,7 @@ void Keyboard(unsigned char key, int x, int y) {
         break;
     case 'a':
         // Move left
-        if (humanPosX - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimit/2) {
+        if (humanPosX - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimitx) {
             humanPosX -= moveSpeed * cos(DEG2RAD(humanRotY));
             humanPosZ -= moveSpeed * sin(DEG2RAD(humanRotY));
         }
@@ -349,7 +351,7 @@ void Keyboard(unsigned char key, int x, int y) {
         break;
     case 'd':
         // Move right
-        if (humanPosX + moveSpeed * cos(DEG2RAD(humanRotY)) < boundaryLimit/2) {
+        if (humanPosX + moveSpeed * cos(DEG2RAD(humanRotY)) < boundaryLimitx) {
             humanPosX += moveSpeed * cos(DEG2RAD(humanRotY));
             humanPosZ += moveSpeed * sin(DEG2RAD(humanRotY));
         }
