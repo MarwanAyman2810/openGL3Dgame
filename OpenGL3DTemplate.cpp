@@ -56,8 +56,8 @@ class Camera {
 public:
     Vector3f eye, center, up;
 
-    Camera(const Vector3f& eyePos = Vector3f(0.0f, .7f, 1.5f),
-        const Vector3f& centerPos = Vector3f(0.0f, .7f, 0.0f),
+    Camera(const Vector3f& eyePos = Vector3f(0.0f, .9f, 1.5f),
+        const Vector3f& centerPos = Vector3f(0.0f, .9f, 0.0f),
         const Vector3f& upVec = Vector3f(0.0f, 1.0f, 0.0f)) {
         eye = eyePos;
         center = centerPos;
@@ -120,6 +120,10 @@ Camera camera;
  
 float parkSizex = 3.0;// Increase the size of the park
 float parkSizez = 1.5;
+
+float seesawAngle = 0.0f;  // Initial angle of the seesaw
+float seesawSpeed = 0.5f;  // Speed of seesaw movement
+float oscillation = 0.0f;
 void drawCylinder(float radius, float height, int slices, int stacks) {
     GLUquadric* quadric = gluNewQuadric();
 
@@ -137,6 +141,8 @@ void drawCylinder(float radius, float height, int slices, int stacks) {
 
     gluDeleteQuadric(quadric);
 }
+
+
 void drawGrass() {
     glColor3f(0.1, 0.9, 0.1); // Green color for grass
     glBegin(GL_LINES);
@@ -194,14 +200,69 @@ void drawBee(float x, float y, float z) {
     glutSolidSphere(0.05, 5, 5);
     glPopMatrix();
 }
+void drawSupport(float x, float y, float z, float scale) {
+    // Drawing triangular wooden support
+    glColor3f(0.6, 0.3, 0); // Brown color for wood
+    glBegin(GL_TRIANGLES);
+
+    // Adjust these coordinates to properly connect the support to the pivot
+    glVertex3f(x, y + 0.05 * scale, z); // Top vertex (attached to the pivot)
+    glVertex3f(x - 0.1 * scale, y - 0.1 * scale, z); // Bottom left
+    glVertex3f(x + 0.1 * scale, y - 0.1 * scale, z); // Bottom right
+
+    glEnd();
+}
+
+
+// Function to draw the seesaw
+void drawSeesaw(float x, float y, float z) {
+    // Scale down the seesaw
+    const float scale = 0.3; // Adjust this value to scale the seesaw
+
+    // Seesaw base (pivot)
+    glColor3f(0.3, 0.3, 0.3); // Dark grey color
+    glPushMatrix();
+    glTranslated(x, y, z);
+    glScalef(scale, scale, scale); // Apply scale transformation
+    drawCylinder(0.05, 0.05, 10, 10);
+    glPopMatrix();
+
+    // Draw wooden supports
+    drawSupport(x, y - 0.1 * scale, z, scale);
+    // Apply rotation for the seesaw plank and handles
+    glPushMatrix();
+    glTranslated(x, y + 0.05 * scale, z); // Adjust y position based on scale
+    glRotated(seesawAngle, 0, 0, 1); // Rotate based on animation angle
+    glScalef(scale, scale, scale); // Apply scale transformation
+
+    // Seesaw plank
+    glColor3f(1, 0.5, 0.5); // Light red color
+    glPushMatrix();
+    glScaled(1.0, 0.05, 0.1); // Scale for the plank
+    glutSolidCube(1);
+    glPopMatrix();
+
+    // Handles at the ends of the seesaw
+    glColor3f(0.5, 0.5, 0.5); // Grey color for handles
+    for (int i = -1; i <= 1; i += 2) { // Two handles at each end
+        glPushMatrix();
+        glTranslated(i * 0.4, 0.05, 0);
+        drawCylinder(0.02, 0.1, 10, 10);
+        glPopMatrix();
+    }
+
+    glPopMatrix();
+}
+
+
 
 // Function to decorate the park
  void parkDecorator() {
     drawGrass();  // Add grass
 
     // Adjusted tree positions
-    drawTree(parkSizex * 0.5, 0, parkSizez * 0.5);
-    //drawTree(-parkSizex * 0.5, 0, -parkSizez * 0.5);
+    //drawTree(parkSizex * 0.5, 0, parkSizez * 0.5);
+    drawTree(-parkSizex * 0.5, 0, -parkSizez * 0.5);
 
     // Adjusted umbrella position
     drawUmbrella(parkSizex * 0.5, 0, -parkSizez * 0.3);
@@ -212,7 +273,18 @@ void drawBee(float x, float y, float z) {
     // Update bee positions for next frame (simple movement logic)
     beeX += (rand() % 3 - 1) * 0.1;
     beeZ += (rand() % 3 - 1) * 0.1;
+    drawSeesaw(parkSizex * 0.3, 0.2, parkSizez * 0.4); // Position the seesaw within the park
+
 }
+ // Function to update the seesaw's animation
+ void updateSeesawAnimation() {
+     seesawAngle += seesawSpeed;
+     if (seesawAngle > 30 || seesawAngle < -30) {
+         seesawSpeed = -seesawSpeed;  // Reverse the direction
+     }
+ }
+
+
 double wallLength = parkSizex;  // Length of the walls
 //double ihatez = parkSizex / 2;
  void drawWall(double lengthx,double lengthz) {
@@ -420,6 +492,7 @@ void display() {
     setupCamera();
     
     drawPark();
+    updateSeesawAnimation();
     drawHuman();
     
     
@@ -437,6 +510,7 @@ int main(int argc, char** argv) {
 
     glutDisplayFunc(display);
     init();
+    
     glutKeyboardFunc(Keyboard);
     glutSpecialFunc(Special);
     glutMainLoop();
