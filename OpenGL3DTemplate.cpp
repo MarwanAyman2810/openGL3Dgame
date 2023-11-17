@@ -113,7 +113,7 @@ public:
 
 Camera camera;
 
- void setupCamera() {
+void setupCamera() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(110, 1500.0 / 1000.0, 0.001, 190);
@@ -122,7 +122,7 @@ Camera camera;
     glLoadIdentity();
     camera.look();
 }
- 
+
 float parkSizex = 3.0;// Increase the size of the park
 float parkSizez = 1.5;
 
@@ -171,7 +171,7 @@ void drawColumn(float angle) {
     glColor3f(0.7, 0.7, 0.7); // Column color
     glRotatef(angle, 0, 0, 1); // Rotate column
     glTranslatef(0.0, COLUMN_HEIGHT / 2, -0.7); // Position column
-    glRotatef(2*-angle, 0, 0, 1); // Rotate column
+    glRotatef(2 * -angle, 0, 0, 1); // Rotate column
     glScalef(0.05, COLUMN_HEIGHT, 0.05); // Scale to column size
     glutSolidCube(1.0);
     glPopMatrix();
@@ -230,7 +230,7 @@ void drawFerrisWheel(float x, float y, float z) {
         glVertex3f(endX, endY, 0); // Edge of wheel
         glEnd();
     }
-    
+
     glPopMatrix();
 
 
@@ -244,8 +244,8 @@ void drawFerrisWheel(float x, float y, float z) {
 void drawGrass() {
     glColor3f(0.1, 0.9, 0.1); // Green color for grass
     glBegin(GL_LINES);
-    for (double i = -parkSizex/2; i <= parkSizex/2; i += parkSizex / 150) {
-        for (double j = -parkSizez/2; j <= parkSizez/2 ; j += parkSizez / 150) {
+    for (double i = -parkSizex / 2; i <= parkSizex / 2; i += parkSizex / 150) {
+        for (double j = -parkSizez / 2; j <= parkSizez / 2; j += parkSizez / 150) {
             glVertex3f(i, 0.0, j);
             glVertex3f(i, 0.03, j); // Slightly above the ground
         }
@@ -355,18 +355,18 @@ void drawSeesaw(float x, float y, float z) {
 
 
 // Function to decorate the park
- void parkDecorator() {
+void parkDecorator() {
     drawGrass();  // Add grass
 
     // Adjusted tree positions
     //drawTree(parkSizex * 0.5, 0, parkSizez * 0.5);
-    drawTree(-parkSizex * 0.5, 0, -parkSizez * 0.5);
+    drawTree(-0.4*parkSizex , 0, -parkSizez * 0.34);
 
     // Adjusted umbrella position
-    drawUmbrella(parkSizex * 0.5, 0, -parkSizez * 0.3);
+    drawUmbrella(parkSizex * 0.42, 0, -parkSizez * 0.3);
 
     // Add moving bees
-    static float beeX = -0.7, beeZ =-.9 ;
+    float beeX = -1.5, beeZ = .75;
     drawBee(beeX, 0.2, beeZ);
     // Update bee positions for next frame (simple movement logic)
     beeX += (rand() % 3 - 1) * 0.1;
@@ -375,35 +375,35 @@ void drawSeesaw(float x, float y, float z) {
     //drawFerrisWheel(0, 1, -1); // Adjust the position 
 
 }
- // Function to update the seesaw's animation
- void updateSeesawAnimation() {
-     seesawAngle += seesawSpeed;
-     if (seesawAngle > 30 || seesawAngle < -30) {
-         seesawSpeed = -seesawSpeed;  // Reverse the direction
-     }
- }
- 
- float ferrisWheelRotation = 0.0f;
- void updateFerrisWheelAnimation() {
-     //static float ferrisWheelRotation = 0.0f; // Static to retain value between calls
+// Function to update the seesaw's animation
+void updateSeesawAnimation() {
+    seesawAngle += seesawSpeed;
+    if (seesawAngle > 30 || seesawAngle < -30) {
+        seesawSpeed = -seesawSpeed;  // Reverse the direction
+    }
+}
 
-     ferrisWheelRotation += 1.0f; // Adjust speed as needed
-     if (ferrisWheelRotation > 360.0f) {
-         ferrisWheelRotation -= 360.0f;
-     }
+float ferrisWheelRotation = 0.0f;
+void updateFerrisWheelAnimation() {
+    //static float ferrisWheelRotation = 0.0f; // Static to retain value between calls
 
-     // Apply rotation and draw the Ferris wheel
-     glPushMatrix();
-     glTranslatef(0, .8, -.6); // Position of the Ferris wheel (adjust as needed)
-      // We already translated, so these are now local coordinates
-     glRotatef(ferrisWheelRotation, 0, 0, 1);
-     drawFerrisWheel(0, 0, 0);
-     glPopMatrix();
- }
+    ferrisWheelRotation += 1.0f; // Adjust speed as needed
+    if (ferrisWheelRotation > 360.0f) {
+        ferrisWheelRotation -= 360.0f;
+    }
+
+    // Apply rotation and draw the Ferris wheel
+    glPushMatrix();
+    glTranslatef(0, .8, -.6); // Position of the Ferris wheel (adjust as needed)
+    // We already translated, so these are now local coordinates
+    glRotatef(ferrisWheelRotation, 0, 0, 1);
+    drawFerrisWheel(0, 0, 0);
+    glPopMatrix();
+}
 
 double wallLength = parkSizex;  // Length of the walls
 //double ihatez = parkSizex / 2;
- void drawWall(double lengthx,double lengthz) {
+void drawWall(double lengthx, double lengthz) {
     double wallThickness = 0.01;  // Hardcoded thickness
     glPushMatrix();
     glTranslated(0, 0, 0);
@@ -411,25 +411,60 @@ double wallLength = parkSizex;  // Length of the walls
     glutSolidCube(1);
     glPopMatrix();
 }
- void drawPark() {
-    
+void drawPark() {
+
 
     // Draw the ground
     glColor3f(0.0, 1, 0.0); // Gray color for the ground
     glPushMatrix();
-    drawWall(parkSizex,parkSizez);
+    drawWall(parkSizex, parkSizez);
     glPopMatrix();
     glPushMatrix();
     parkDecorator();
     glPopMatrix();
 
-   
+    //// Draw the left wall
+    glColor3f(0.8, 0.6, 0.4); // Brown color for the left wall
+    glPushMatrix();
+    glTranslated( -0.5*parkSizex, 0.5,0); // Reposition the left wall
+    glScaled(0.01, 1, parkSizez); // Scale wall according to specified length
+    glRotated(-90, 0, 1, 0); // Rotate -90 degrees to face left
+    glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
+    glutSolidCube(1);
+    glPopMatrix();
+
+    //// Draw the right wall
+    glColor3f(0.0, 0.0, 1); // blue color for the left wall
+    glPushMatrix();
+    glTranslated(0.5 * parkSizex, 0.5, 0); // Reposition the left wall
+    glScaled(0.01, 1, parkSizez); // Scale wall according to specified length
+    glRotated(-90, 0, 1, 0); // Rotate -90 degrees to face left
+    glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
+    glutSolidCube(1);
+    glPopMatrix();
+
+    //// Draw the back wall
+    glColor3f(0.0, 0.0, 0.2); // Brown color for the back wall
+    glPushMatrix();
+    glTranslated(0, .5, -0.5 * parkSizez); // Reposition the back wall
+    glScaled(parkSizex, 1, 0);
+    glRotated(180, 0, 1, 0); // Rotate 180 degrees to face inward
+    glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
+    glutSolidCube(1);
+    glPopMatrix();
+
+    //// Draw human (if applicable)
+   /* glPushMatrix();
+    drawHuman();
+    glPopMatrix();*/
+
+
 }
 float humanPosX = 0.0f, humanPosY = 0.06f, humanPosZ = 0.0f;
 float humanRotY = 0.0f; // Rotation around the Y-axis
 float facePosition = 0.0f; // Rotation around the Y-axis
 static void drawHuman() {
-    
+
     glPushMatrix();
     // First, translate to the human's current position
     glTranslatef(humanPosX, humanPosY, humanPosZ);
@@ -509,10 +544,10 @@ static void drawHuman() {
 void Keyboard(unsigned char key, int x, int y) {
     float d = 0.08;
     float moveSpeed = 0.3f;
-    float boundaryLimitx = parkSizex/2;
-    float boundaryLimitz = parkSizez/2;
+    float boundaryLimitx = parkSizex / 2;
+    float boundaryLimitz = parkSizez / 2;
     switch (key) {
-       
+
     case 'w':
         // Move forward
         if (humanPosZ - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimitz) {
@@ -546,32 +581,32 @@ void Keyboard(unsigned char key, int x, int y) {
         facePosition = 90;
         break;
         break;
-    case 'i': 
+    case 'i':
         camera.moveY(d);
         break;
-    case 'k': 
+    case 'k':
         camera.moveY(-d);
         break;
-    case 'j': 
+    case 'j':
         camera.moveX(d);
         break;
-    case 'l': 
+    case 'l':
         camera.moveX(-d);
         break;
-    case 'q': 
+    case 'q':
         camera.moveZ(d);
         break;
-    case 'e': 
+    case 'e':
         camera.moveZ(-d);
         break;
 
     case GLUT_KEY_ESCAPE:
         exit(EXIT_SUCCESS);
     }
-    
-   /* if (humanRotY >= 360.0f || humanRotY <= -360.0f) {
-        humanRotY = fmod(humanRotY, 360.0f);
-    }*/
+
+    /* if (humanRotY >= 360.0f || humanRotY <= -360.0f) {
+         humanRotY = fmod(humanRotY, 360.0f);
+     }*/
     glutPostRedisplay();
 }
 
@@ -606,13 +641,13 @@ void display() {
     glLoadIdentity();
 
     setupCamera();
-    
+
     drawPark();
     updateSeesawAnimation();
     drawHuman();
     updateFerrisWheelAnimation();
-    
-    
+
+
 
     glutSwapBuffers();
 }
@@ -627,7 +662,7 @@ int main(int argc, char** argv) {
 
     glutDisplayFunc(display);
     init();
-    
+
     glutKeyboardFunc(Keyboard);
     glutSpecialFunc(Special);
     glutMainLoop();
