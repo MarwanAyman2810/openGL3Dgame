@@ -5,9 +5,7 @@
 #define GLUT_KEY_ESCAPE 27
 #define DEG2RAD(a) (a * 0.0174532925)
 // Global variables for human character position and orientation
-float humanPosX = 0.0f, humanPosY = 0.037f, humanPosZ = 0.0f;
-float humanRotY = 0.0f; // Rotation around the Y-axis
-float facePosition = 0.0f; // Rotation around the Y-axis
+
 
 void init() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -57,8 +55,8 @@ class Camera {
 public:
     Vector3f eye, center, up;
 
-    Camera(const Vector3f& eyePos = Vector3f(0.0f, 0.5f, 1.5f),
-        const Vector3f& centerPos = Vector3f(0.0f, 0.5f, 0.0f),
+    Camera(const Vector3f& eyePos = Vector3f(0.0f, 1.f, 1.5f),
+        const Vector3f& centerPos = Vector3f(0.0f, 1.f, 0.0f),
         const Vector3f& upVec = Vector3f(0.0f, 1.0f, 0.0f)) {
         eye = eyePos;
         center = centerPos;
@@ -109,23 +107,81 @@ public:
 
 Camera camera;
 
-void setupCamera() {
+ void setupCamera() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, 640.0 / 480.0, 0.001, 100);
+    gluPerspective(120, 1500.0 / 1000.0, 0.001, 190);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     camera.look();
 }
-void drawHuman() {
-    glPushMatrix();
 
+double parkSize = 3.0;  // Increase the size of the park
+double wallLength = parkSize;  // Length of the walls
+double ihatez = parkSize / 2;
+ void drawWall(double length) {
+    double wallThickness = 0.01;  // Hardcoded thickness
+    glPushMatrix();
+    glTranslated(.5, 0.5 * wallThickness, 0.5);
+    glScaled(length, wallThickness, length); // Scale wall according to specified length
+    glutSolidCube(1);
+    glPopMatrix();
+}
+static void drawPark() {
+    
+
+    // Draw the ground
+    glColor3f(0.5, 0.5, 0.5); // Gray color for the ground
+    glPushMatrix();
+    glTranslated(0.0, 0.0, 0.0); // Centered on the bottom
+    glScaled(parkSize, 0.01,parkSize/2); // Scale ground according to park size
+    glutSolidCube(1);
+    glPopMatrix();
+
+    //// Draw the left wall
+    //glColor3f(0.8, 0.6, 0.4); // Brown color for the left wall
+    //glPushMatrix();
+    //glTranslated(-0.5 * parkSize, 1, 0); // Reposition the left wall
+    //glRotated(-90, 0, 1, 0); // Rotate -90 degrees to face left
+    //glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
+    //drawWall(wallLength);
+    //glPopMatrix();
+
+    //// Draw the right wall
+    //glColor3f(0.8, 0.6, 0.4); // Brown color for the right wall
+    //glPushMatrix();
+    //glTranslated(0.5 * parkSize, 1, 0); // Reposition the right wall
+    //glRotated(90, 0, 1, 0); // Rotate 90 degrees to face right
+    //glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
+    //drawWall(wallLength);
+    //glPopMatrix();
+
+    //// Draw the back wall
+    //glColor3f(0.8, 0.6, 0.4); // Brown color for the back wall
+    //glPushMatrix();
+    //glTranslated(0.5, 1.5, -0.5 * parkSize); // Reposition the back wall
+    //glRotated(180, 0, 1, 0); // Rotate 180 degrees to face inward
+    //glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
+    //drawWall(wallLength);
+    //glPopMatrix();
+
+    //// Draw human (if applicable)
+   /* glPushMatrix();
+    drawHuman();
+    glPopMatrix();*/
+}
+float humanPosX = 0.0f, humanPosY = 0.06f, humanPosZ = 0.0f;
+float humanRotY = 0.0f; // Rotation around the Y-axis
+float facePosition = 0.0f; // Rotation around the Y-axis
+static void drawHuman() {
+    
+    glPushMatrix();
     // First, translate to the human's current position
     glTranslatef(humanPosX, humanPosY, humanPosZ);
 
     // Then, rotate the human to face the direction of movement
-    glRotatef(facePosition , 0.0f, 1.0f, 0.0f);
+    glRotatef(facePosition, 0.0f, 1.0f, 0.0f);
 
     // Apply scaling to the human model
     glScalef(0.09, 0.09, 0.09);
@@ -139,24 +195,6 @@ void drawHuman() {
     glTranslatef(0.0, -0.6, 0.0);
     glScalef(1.0, 1.5, 0.5);
     glutSolidCube(0.5);
-
-    // Draw right side of shorts
-    glColor3f(1.0, 0.0, 0.0); // Color for the shorts
-    glPushMatrix();
-    glTranslatef(-0.15, -0.45, 0.0); // Adjust position to the right side
-    glRotatef(-15, 0, 0, 1); // Reverse tilt
-    glScalef(0.23, 0.5, 0.3); // Increase thickness
-    glutSolidCube(1.0);
-    glPopMatrix();
-
-    // Draw left side of shorts
-    glPushMatrix();
-    glTranslatef(0.15, -0.45, 0.0); // Adjust position to the left side
-    glRotatef(15, 0, 0, 1); // Reverse tilt
-    glScalef(0.23, 0.5, 0.3); // Increase thickness
-    glutSolidCube(1.0);
-    glPopMatrix();
-
     // Draw right arm
     glColor3f(1.0, 0.85, 0.75); // Skin color for arms
     glPushMatrix();
@@ -175,6 +213,22 @@ void drawHuman() {
     glutSolidCube(1.0);
     glPopMatrix();
 
+    // Draw right side of shorts
+    glColor3f(1.0, 0.0, 0.0); // Color for the shorts
+    glPushMatrix();
+    glTranslatef(-0.15, -0.45, 0.0); // Adjust position to the right side
+    glRotatef(-15, 0, 0, 1); // Reverse tilt
+    glScalef(0.23, 0.5, 0.3); // Increase thickness
+    glutSolidCube(1.0);
+    glPopMatrix();
+
+    // Draw left side of shorts
+    glPushMatrix();
+    glTranslatef(0.15, -0.45, 0.0); // Adjust position to the left side
+    glRotatef(15, 0, 0, 1); // Reverse tilt
+    glScalef(0.23, 0.5, 0.3); // Increase thickness
+    glutSolidCube(1.0);
+    glPopMatrix();
 
     // Draw right leg
     glColor3f(0.0, 0.0, 0.0); // Black color for the legs
@@ -195,49 +249,47 @@ void drawHuman() {
     glPopMatrix();
 }
 
-void drawWall(double thickness) {
-    glPushMatrix();
-    glTranslated(0.5, 0.5 * thickness, 0.5);
-    glScaled(1.0, thickness, 1.0);
-    glutSolidCube(1);
-    glPopMatrix();
-}
+
+
 
 void Keyboard(unsigned char key, int x, int y) {
-    float d = 0.05;
-    float moveSpeed = 0.1f;
+    float d = 0.08;
+    float moveSpeed = 0.3f;
+    float boundaryLimit = parkSize/2;
     switch (key) {
-        if (humanRotY != 0.0f) {
-            humanRotY = 0.0f;
-        }
+       
     case 'w':
         // Move forward
-        humanPosX += moveSpeed * sin(DEG2RAD(humanRotY));
-        humanPosZ -= moveSpeed * cos(DEG2RAD(humanRotY));
+        if (humanPosZ - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimit/2) {
+            humanPosX += moveSpeed * sin(DEG2RAD(humanRotY));
+            humanPosZ -= moveSpeed * cos(DEG2RAD(humanRotY));
+        }
         facePosition = 180;
         break;
     case 's':
         // Move backward
-        humanPosX -= moveSpeed * sin(DEG2RAD(humanRotY));
-        humanPosZ += moveSpeed * cos(DEG2RAD(humanRotY));
-        //humanRotY = humanRotY;
+        if (humanPosZ + moveSpeed * cos(DEG2RAD(humanRotY)) < boundaryLimit/2) {
+            humanPosX -= moveSpeed * sin(DEG2RAD(humanRotY));
+            humanPosZ += moveSpeed * cos(DEG2RAD(humanRotY));
+        }
         facePosition = -180;
         break;
     case 'a':
-        //move left
-        
-        humanPosX -= moveSpeed * cos(DEG2RAD(humanRotY));
-        humanPosZ -= moveSpeed * sin(DEG2RAD(humanRotY));
-        //humanRotY -= 90;
+        // Move left
+        if (humanPosX - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimit) {
+            humanPosX -= moveSpeed * cos(DEG2RAD(humanRotY));
+            humanPosZ -= moveSpeed * sin(DEG2RAD(humanRotY));
+        }
         facePosition = -90;
         break;
     case 'd':
         // Move right
-        
-        humanPosX += moveSpeed * cos(DEG2RAD(humanRotY));
-        humanPosZ += moveSpeed * sin(DEG2RAD(humanRotY));
-        //humanRotY += 90;
+        if (humanPosX + moveSpeed * cos(DEG2RAD(humanRotY)) < boundaryLimit) {
+            humanPosX += moveSpeed * cos(DEG2RAD(humanRotY));
+            humanPosZ += moveSpeed * sin(DEG2RAD(humanRotY));
+        }
         facePosition = 90;
+        break;
         break;
     case 'i': 
         camera.moveY(d);
@@ -269,7 +321,7 @@ void Keyboard(unsigned char key, int x, int y) {
 }
 
 void Special(int key, int x, int y) {
-    float a = 1.0;
+    float a = 3.0;
 
     switch (key) {
     case GLUT_KEY_UP:
@@ -290,43 +342,7 @@ void Special(int key, int x, int y) {
     glutPostRedisplay();
 }
 
-void drawRoom() {
-    // Draw the ground
-    glColor3f(0.5, 0.5, 0.5); // Gray color for the ground
-    glPushMatrix();
-    glTranslated(0.0, 0.0, 0.0); // Centered on the bottom
-    glScaled(1.0, 0.01, 1.0); // Make it very thin
-    glutSolidCube(1);
-    glPopMatrix();
 
-    // Draw the left wall
-    glColor3f(0.8, 0.6, 0.4); // Brown color for the left wall
-    glPushMatrix();
-    glTranslated(-0.5, 1, -0.5); // Positioned at the left side
-    glRotated(-90, 0, 1, 0); // Rotate -90 degrees to face left
-    glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
-    drawWall(0.02);
-    glPopMatrix();
-
-    // Draw the right wall
-    glColor3f(0.8, 0.6, 0.4); // Brown color for the right wall
-    glPushMatrix();
-    glTranslated(0.5, 1, 0.5); // Positioned at the right side
-    glRotated(90, 0, 1, 0); // Rotate 90 degrees to face right
-    glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
-    drawWall(0.02);
-    glPopMatrix();
-
-    // Draw the back wall
-    glColor3f(0.8, 0.6, 0.4); // Brown color for the back wall
-    glPushMatrix();
-    glTranslated(0.5, 1, -.5); // Positioned at the back
-
-    glRotated(180, 0, 1, 0); // Rotate 180 degrees to face inward
-    glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
-    drawWall(0.02);
-    glPopMatrix();
-}
 
 
 void display() {
@@ -335,8 +351,11 @@ void display() {
     glLoadIdentity();
 
     setupCamera();
-    drawRoom();
+    
+    drawPark();
     drawHuman();
+    
+    
 
     glutSwapBuffers();
 }
@@ -344,7 +363,7 @@ void display() {
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(1500, 1000);
     glutCreateWindow("3D Player Example");
 
 
