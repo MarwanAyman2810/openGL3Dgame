@@ -3,6 +3,11 @@
 #include <glut.h>
 #include<math.h>
 
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #define GLUT_KEY_ESCAPE 27
 #define DEG2RAD(a) (a * 0.0174532925)
 // Global variables for human character position and orientation
@@ -141,6 +146,99 @@ void drawCylinder(float radius, float height, int slices, int stacks) {
 
     gluDeleteQuadric(quadric);
 }
+// Function to draw a single column
+
+
+const float FERRIS_WHEEL_RADIUS = .8; // Adjust as needed
+const int NUM_CABINS = 8; // Number of cabins on the wheel
+const float SMALL_DISK_RADIUS = 0.1;
+// Constants for the columns
+const float COLUMN_HEIGHT = 1; // Adjust as needed
+//const float COLUMN_RADIUS = 0.03; // Radius of the columns
+const float COLUMN_ANGLE = 35.0; // Angle of tilt for the columns
+
+//void drawColumn() {
+//    glColor3f(0.5, 0.5, 0.5); // Grey color for the column
+//    glPushMatrix();
+//    glRotatef(COLUMN_ANGLE, 1, 0, 1); // Tilt the column
+//    GLUquadric* quadric = gluNewQuadric();
+//    gluCylinder(quadric, COLUMN_RADIUS, COLUMN_RADIUS, COLUMN_HEIGHT, 10, 10);
+//    gluDeleteQuadric(quadric);
+//    glPopMatrix();
+//}
+void drawColumn(float angle) {
+    glPushMatrix();
+    glColor3f(0.7, 0.7, 0.7); // Column color
+    glRotatef(angle, 0, 0, 1); // Rotate column
+    glTranslatef(0.0, COLUMN_HEIGHT / 2, -0.7); // Position column
+    glRotatef(2*-angle, 0, 0, 1); // Rotate column
+    glScalef(0.05, COLUMN_HEIGHT, 0.05); // Scale to column size
+    glutSolidCube(1.0);
+    glPopMatrix();
+}
+// Function to draw a Ferris wheel cabin
+void drawCabin() {
+    glColor3f(0.8, 0.1, 0.1); // Cabin color
+    glPushMatrix();
+    glScalef(0.2, 0.15, 0.15); // Scale to cabin size
+    glutSolidCube(1.0);
+    glPopMatrix();
+}
+
+void drawFerrisWheel(float x, float y, float z) {
+    glColor3f(0.5, 0, 1); // Color for the wheel
+    glPushMatrix();
+    glTranslatef(x, y, z);
+
+    // Draw the wheel
+    GLUquadric* quadric = gluNewQuadric();
+    glPushMatrix();
+    glRotatef(-90, 0, 0, 1);
+    gluDisk(quadric, FERRIS_WHEEL_RADIUS - 0.1, FERRIS_WHEEL_RADIUS, 20, 20);
+    glPopMatrix();
+    //gluDeleteQuadric(quadric);
+    // Draw the smaller disk at the center
+    glColor3f(0.5, 0.5, 0.5); // Grey color for the smaller disk
+    gluDisk(quadric, 0, SMALL_DISK_RADIUS, 20, 20);
+
+    gluDeleteQuadric(quadric);
+    // Draw cabin
+    for (int i = 0; i < NUM_CABINS; ++i) {
+        float angle = (360.0 / NUM_CABINS) * i;
+        glPushMatrix();
+        glRotatef(angle, 0, 0, 1);
+        glTranslatef(0, FERRIS_WHEEL_RADIUS, 0);
+        drawCabin();
+        glPopMatrix();
+    }
+
+
+    // Draw radial lines
+    int numLines = 30; // Adjust this for more or fewer lines
+    glColor3f(0, 0, 0); // Line color
+    for (int i = 0; i < numLines; ++i) {
+        float angle = (360.0 / numLines) * i;
+        float radianAngle = angle * M_PI / 180.0;
+
+        // Calculate end point of line on the wheel circumference
+        float endX = FERRIS_WHEEL_RADIUS * cos(radianAngle);
+        float endY = FERRIS_WHEEL_RADIUS * sin(radianAngle);
+
+        // Draw line from center to the wheel edge
+        glBegin(GL_LINES);
+        glVertex3f(0, 0, 0); // Center of wheel
+        glVertex3f(endX, endY, 0); // Edge of wheel
+        glEnd();
+    }
+    
+    glPopMatrix();
+
+
+    glPopMatrix();
+    drawColumn(COLUMN_ANGLE);
+    drawColumn(-COLUMN_ANGLE);
+}
+
 
 
 void drawGrass() {
@@ -273,7 +371,8 @@ void drawSeesaw(float x, float y, float z) {
     // Update bee positions for next frame (simple movement logic)
     beeX += (rand() % 3 - 1) * 0.1;
     beeZ += (rand() % 3 - 1) * 0.1;
-    drawSeesaw(parkSizex * 0.3, 0.2, parkSizez * 0.4); // Position the seesaw within the park
+    drawSeesaw(parkSizex * 0.3, 0.07, parkSizez * 0.4); // Position the seesaw within the park
+    //drawFerrisWheel(0, 1, -1); // Adjust the position 
 
 }
  // Function to update the seesaw's animation
@@ -283,7 +382,24 @@ void drawSeesaw(float x, float y, float z) {
          seesawSpeed = -seesawSpeed;  // Reverse the direction
      }
  }
+ 
+ float ferrisWheelRotation = 0.0f;
+ void updateFerrisWheelAnimation() {
+     //static float ferrisWheelRotation = 0.0f; // Static to retain value between calls
 
+     ferrisWheelRotation += 1.0f; // Adjust speed as needed
+     if (ferrisWheelRotation > 360.0f) {
+         ferrisWheelRotation -= 360.0f;
+     }
+
+     // Apply rotation and draw the Ferris wheel
+     glPushMatrix();
+     glTranslatef(0, .8, -.6); // Position of the Ferris wheel (adjust as needed)
+      // We already translated, so these are now local coordinates
+     glRotatef(ferrisWheelRotation, 0, 0, 1);
+     drawFerrisWheel(0, 0, 0);
+     glPopMatrix();
+ }
 
 double wallLength = parkSizex;  // Length of the walls
 //double ihatez = parkSizex / 2;
@@ -494,6 +610,7 @@ void display() {
     drawPark();
     updateSeesawAnimation();
     drawHuman();
+    updateFerrisWheelAnimation();
     
     
 
