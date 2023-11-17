@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <glut.h>
+#include<math.h>
 
 #define GLUT_KEY_ESCAPE 27
 #define DEG2RAD(a) (a * 0.0174532925)
@@ -55,8 +56,8 @@ class Camera {
 public:
     Vector3f eye, center, up;
 
-    Camera(const Vector3f& eyePos = Vector3f(0.0f, 1.f, 1.5f),
-        const Vector3f& centerPos = Vector3f(0.0f, 1.f, 0.0f),
+    Camera(const Vector3f& eyePos = Vector3f(0.0f, .5f, 1.f),
+        const Vector3f& centerPos = Vector3f(0.0f, .5f, 0.0f),
         const Vector3f& upVec = Vector3f(0.0f, 1.0f, 0.0f)) {
         eye = eyePos;
         center = centerPos;
@@ -110,20 +111,113 @@ Camera camera;
  void setupCamera() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(120, 1500.0 / 1000.0, 0.001, 190);
+    gluPerspective(110, 1500.0 / 1000.0, 0.001, 190);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     camera.look();
 }
 
-double parkSize = 3.0;  // Increase the size of the park
+float parkSize = 3.0;// Increase the size of the park
+void drawCylinder(float radius, float height, int slices, int stacks) {
+    GLUquadric* quadric = gluNewQuadric();
+
+    // Draw the cylinder
+    gluCylinder(quadric, radius, radius, height, slices, stacks);
+
+    // Draw the top disk
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, height);
+    gluDisk(quadric, 0, radius, slices, 1);
+    glPopMatrix();
+
+    // Draw the bottom disk
+    gluDisk(quadric, 0, radius, slices, 1);
+
+    gluDeleteQuadric(quadric);
+}
+void drawGrass() {
+    glColor3f(0.1, 0.6, 0.1); // Green color for grass
+    glBegin(GL_LINES);
+    for (double i = -parkSize/2; i <= parkSize/2; i += parkSize / 40) {
+        for (double j = -parkSize / 2; j <= parkSize / 2; j += parkSize / 40) {
+            glVertex3f(i, 0.01, j);
+            glVertex3f(i, 0.1, j); // Slightly above the ground
+        }
+    }
+    glEnd();
+}
+
+// Function to draw trees
+void drawTree(float x, float y, float z) {
+    // Drawing the trunk
+    glColor3f(0.55, 0.27, 0.07); // Brown color for the trunk
+    glPushMatrix();
+    glTranslated(x, y, z);
+    glRotated(-90, 1, 0, 0); // Rotate trunk to stand upright
+    glutSolidCone(0.1, 0.5, 10, 2);
+    glPopMatrix();
+
+    // Drawing the foliage
+    glColor3f(0.13, 0.55, 0.13); // Dark green for leaves
+    glPushMatrix();
+    glTranslated(x, y + 0.4, z);
+    glutSolidSphere(0.25, 10, 10);
+    glPopMatrix();
+}
+
+// Function to draw an umbrella
+void drawUmbrella(float x, float y, float z) {
+    // Umbrella pole
+    glColor3f(0, 0, 0); // Black color for the pole
+    glPushMatrix();
+    glTranslated(x, y, z);
+    glRotated(-90, 1, 0, 0);
+    drawCylinder(0.05, 0.5, 10, 2);
+    glPopMatrix();
+
+    // Umbrella canopy
+    glColor3f(1, 0, 0); // Red color for the canopy
+    glPushMatrix();
+    glTranslated(x, y + 0.5, z);
+    glRotated(-90, 1, 0, 0);
+    glutSolidCone(0.5, 0.2, 10, 2);
+    glPopMatrix();
+}
+
+// Function to draw moving bees
+void drawBee(float x, float y, float z) {
+    glColor3f(1, 1, 0); // Yellow color for bees
+    glPushMatrix();
+    glTranslated(x, y, z);
+    glutSolidSphere(0.05, 10, 10);
+    glPopMatrix();
+}
+
+// Function to decorate the park
+static void parkDecorator() {
+    drawGrass();  // Add grass
+
+    // Adjusted tree positions
+    drawTree(parkSize * 0.5, 0, parkSize * 0.5);
+    drawTree(-parkSize * 0.5, 0, -parkSize * 0.5);
+
+    // Adjusted umbrella position
+    drawUmbrella(parkSize * 0.3, 0, parkSize * 0.3);
+
+    // Add moving bees
+    static float beeX = 0, beeZ = 0;
+    drawBee(beeX, 0.2, beeZ);
+    // Update bee positions for next frame (simple movement logic)
+    beeX += (rand() % 3 - 1) * 0.1;
+    beeZ += (rand() % 3 - 1) * 0.1;
+}
 double wallLength = parkSize;  // Length of the walls
 double ihatez = parkSize / 2;
  void drawWall(double length) {
     double wallThickness = 0.01;  // Hardcoded thickness
     glPushMatrix();
-    glTranslated(.5, 0.5 * wallThickness, 0.5);
+    glTranslated(0, 0, 0);
     glScaled(length, wallThickness, length); // Scale wall according to specified length
     glutSolidCube(1);
     glPopMatrix();
@@ -132,44 +226,15 @@ static void drawPark() {
     
 
     // Draw the ground
-    glColor3f(0.5, 0.5, 0.5); // Gray color for the ground
+    glColor3f(0.0, 0.1, 0.0); // Gray color for the ground
     glPushMatrix();
-    glTranslated(0.0, 0.0, 0.0); // Centered on the bottom
-    glScaled(parkSize, 0.01,parkSize/2); // Scale ground according to park size
-    glutSolidCube(1);
+    drawWall(parkSize);
+    glPopMatrix();
+    glPushMatrix();
+    parkDecorator();
     glPopMatrix();
 
-    //// Draw the left wall
-    //glColor3f(0.8, 0.6, 0.4); // Brown color for the left wall
-    //glPushMatrix();
-    //glTranslated(-0.5 * parkSize, 1, 0); // Reposition the left wall
-    //glRotated(-90, 0, 1, 0); // Rotate -90 degrees to face left
-    //glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
-    //drawWall(wallLength);
-    //glPopMatrix();
-
-    //// Draw the right wall
-    //glColor3f(0.8, 0.6, 0.4); // Brown color for the right wall
-    //glPushMatrix();
-    //glTranslated(0.5 * parkSize, 1, 0); // Reposition the right wall
-    //glRotated(90, 0, 1, 0); // Rotate 90 degrees to face right
-    //glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
-    //drawWall(wallLength);
-    //glPopMatrix();
-
-    //// Draw the back wall
-    //glColor3f(0.8, 0.6, 0.4); // Brown color for the back wall
-    //glPushMatrix();
-    //glTranslated(0.5, 1.5, -0.5 * parkSize); // Reposition the back wall
-    //glRotated(180, 0, 1, 0); // Rotate 180 degrees to face inward
-    //glRotated(90, 1, 0, 0); // Rotate 90 degrees vertically
-    //drawWall(wallLength);
-    //glPopMatrix();
-
-    //// Draw human (if applicable)
-   /* glPushMatrix();
-    drawHuman();
-    glPopMatrix();*/
+   
 }
 float humanPosX = 0.0f, humanPosY = 0.06f, humanPosZ = 0.0f;
 float humanRotY = 0.0f; // Rotation around the Y-axis
@@ -255,7 +320,7 @@ static void drawHuman() {
 void Keyboard(unsigned char key, int x, int y) {
     float d = 0.08;
     float moveSpeed = 0.3f;
-    float boundaryLimit = parkSize/2;
+    float boundaryLimit = parkSize;
     switch (key) {
        
     case 'w':
@@ -276,7 +341,7 @@ void Keyboard(unsigned char key, int x, int y) {
         break;
     case 'a':
         // Move left
-        if (humanPosX - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimit) {
+        if (humanPosX - moveSpeed * cos(DEG2RAD(humanRotY)) > -boundaryLimit/2) {
             humanPosX -= moveSpeed * cos(DEG2RAD(humanRotY));
             humanPosZ -= moveSpeed * sin(DEG2RAD(humanRotY));
         }
@@ -284,7 +349,7 @@ void Keyboard(unsigned char key, int x, int y) {
         break;
     case 'd':
         // Move right
-        if (humanPosX + moveSpeed * cos(DEG2RAD(humanRotY)) < boundaryLimit) {
+        if (humanPosX + moveSpeed * cos(DEG2RAD(humanRotY)) < boundaryLimit/2) {
             humanPosX += moveSpeed * cos(DEG2RAD(humanRotY));
             humanPosZ += moveSpeed * sin(DEG2RAD(humanRotY));
         }
