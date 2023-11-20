@@ -506,7 +506,7 @@ void drawcar() {
     glColor3f(0.5, 0.5, 0.5); // Color for cylinder
     glTranslatef(-0.075, -0.15, 0.125); // Position adjustment for cylinder
     glRotatef(90, 0, 0, 1); // Rotate to align along the X-axis
-    drawCylinder(0.01, 0.125, 10, 10); // Draw cylinder
+    drawCylinder(0.0125, 0.129, 10, 10); // Draw cylinder
     glPopMatrix();
 
     // Other wheels and cylinders can be added similarly
@@ -516,7 +516,7 @@ void drawcar() {
     glTranslatef(-.2, -.2, 0);
     glutSolidTorus(.01, .05, 8, 8);       // wheel
     glPushMatrix();
-    glTranslatef(0, 0.05, 0); // Adjust position to connect to body
+    glTranslatef(0, 0.01, 0); // Adjust position to connect to body
     glRotatef(90, 0, 1, 0); // Rotate to align with X-Z axis
     drawCylinder(.01, .4, 10, 10); // Cylinder parameters can be adjusted
     glPopMatrix();
@@ -529,7 +529,7 @@ void drawcar() {
     glTranslatef(-.2, -.2, 0);
     glutSolidTorus(.01, .05, 8, 8);      // wheel
     glPushMatrix();
-    glTranslatef(0, 0.05, 0); // Adjust position to connect to body
+    glTranslatef(0, 0.01, 0); // Adjust position to connect to body
     glRotatef(90, 0, 1, 0); // Rotate to align with X-Z axis
     drawCylinder(.01, .4, 10, 10); // Cylinder parameters can be adjusted
     glPopMatrix();
@@ -845,8 +845,82 @@ void drawPark() {
         }
     }
 }
+void drawShoe() {
+    glColor3f(0.3, 0.3, 0.3); // Dark grey color for the shoe
+    glPushMatrix();
+    glTranslatef(-0.21, -1.0, 0.0); // Position the shoe at the bottom of the right leg
 
- void drawHuman() {
+    // Shoe Base
+    glPushMatrix();
+    glScalef(0.15, 0.05, 0.25);
+    glutSolidCube(1.0);
+    glPopMatrix();
+
+    // Shoe Toe Cap
+    glColor3f(0.4, 0.4, 0.4); // Slightly lighter grey for the toe cap
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, 0.125);
+    glScalef(0.15, 0.05, 0.1);
+    glutSolidSphere(0.5, 20, 20);
+    glPopMatrix();
+
+    // Shoe Heel
+    glColor3f(0.25, 0.25, 0.25); // Slightly darker grey for the heel
+    glPushMatrix();
+    glTranslatef(0.0, -0.025, -0.125);
+    glScalef(0.15, 0.1, 0.1);
+    glutSolidCube(1.0);
+    glPopMatrix();
+
+    // Laces Area
+    glColor3f(0.3, 0.3, 0.3); // Matching the shoe color
+    glPushMatrix();
+    glTranslatef(0.0, 0.025, 0.05);
+    glScalef(0.15, 0.1, 0.2);
+    glutSolidCube(1.0);
+    glPopMatrix();
+
+    // Individual Laces
+    for (int i = 0; i < 5; i++) {
+        glColor3f(1.0, 1.0, 1.0); // White color for the laces
+        glPushMatrix();
+        glTranslatef(0.0, 0.03, 0.025 - i * 0.05);
+        glScalef(0.12, 0.01, 0.01);
+        glutSolidCube(1.0);
+        glPopMatrix();
+    }
+
+    // Side Details
+    for (int i = 0; i < 3; i++) {
+        glColor3f(0.4, 0.4, 0.4); // Slightly lighter grey for side details
+        glPushMatrix();
+        glTranslatef(0.075 - i * 0.075, 0.0, 0.075 - i * 0.075);
+        glRotatef(45, 0, 1, 0);
+        glScalef(0.01, 0.05, 0.15);
+        glutSolidCube(1.0);
+        glPopMatrix();
+    }
+
+    // Shoe Tongue
+    glColor3f(0.35, 0.35, 0.35); // A different shade of grey for contrast
+    glPushMatrix();
+    glTranslatef(0.0, 0.05, 0.125);
+    glScalef(0.15, 0.1, 0.05);
+    glutSolidCube(1.0);
+    glPopMatrix();
+
+    // Shoe Sole
+    glColor3f(0.2, 0.2, 0.2); // Very dark grey for the sole
+    glPushMatrix();
+    glTranslatef(0.0, -0.05, 0.0);
+    glScalef(0.15, 0.01, 0.25);
+    glutSolidCube(1.0);
+    glPopMatrix();
+
+    // End of the shoe drawing
+    glPopMatrix();
+}
+void drawHuman() {
 
     glPushMatrix();
     // First, translate to the human's current position
@@ -895,13 +969,15 @@ void drawPark() {
     glPopMatrix();
 
     // Draw left side of shorts
+    glColor3f(1.0, 1.0, 0.0);
     glPushMatrix();
     glTranslatef(0.15, -0.45, 0.0); // Adjust position to the left side
     glRotatef(15, 0, 0, 1); // Reverse tilt
     glScalef(0.23, 0.5, 0.3); // Increase thickness
     glutSolidCube(1.0);
     glPopMatrix();
-
+    
+    
     // Draw right leg
     glColor3f(0.0, 0.0, 0.0); // Black color for the legs
     glPushMatrix();
@@ -909,19 +985,35 @@ void drawPark() {
     glScalef(0.12, 0.5, 0.1);
     glutSolidCube(1.0);
     glPopMatrix();
+   
 
     // Draw left leg
     glPushMatrix();
     glTranslatef(0.21, -0.75, 0.0);
     glScalef(0.12, 0.5, 0.1);
     glutSolidCube(1.0);
+    
     glPopMatrix();
 
+    // Drawing the right shoe
+    glPushMatrix();
+    glTranslatef(0.0, 0, 0.0); // Position for the right shoe
+    drawShoe();
+    glPopMatrix();
+
+    // Drawing the left shoe
+    glPushMatrix();
+    glTranslatef(0.0, 0, 0.0); // Position for the left shoe
+    glScalef(-1.0, 1.0, 1.0); // Mirror the shoe across the y-axis
+    drawShoe();
+    //glRotatef(-180, 0, 0, 1);
+    glPopMatrix();
+    
 
     glPopMatrix();
 }
- bool iceCreamVisible = true; // Initially, the ice cream is visible
- float iceCreamPosX = 0.7f, iceCreamPosY = 0.2f, iceCreamPosZ = 0.01f;
+bool iceCreamVisible = true; // Initially, the ice cream is visible
+float iceCreamPosX = 0.7f, iceCreamPosY = 0.2f, iceCreamPosZ = 0.01f;
 void drawCone(float base, float height, int slices, int stacks) {
     GLUquadric* quadric = gluNewQuadric();
     glPushMatrix();
@@ -1020,7 +1112,7 @@ void Keyboard(unsigned char key, int x, int y) {
             humanPosX += moveSpeed * sin(DEG2RAD(humanRotY));
             humanPosZ -= moveSpeed * cos(DEG2RAD(humanRotY));
         }
-        facePosition = 180;
+        facePosition = 0;
         break;
     case 's':
         // Move backward
@@ -1028,7 +1120,7 @@ void Keyboard(unsigned char key, int x, int y) {
             humanPosX -= moveSpeed * sin(DEG2RAD(humanRotY));
             humanPosZ += moveSpeed * cos(DEG2RAD(humanRotY));
         }
-        facePosition = -180;
+        facePosition = 180;
         break;
     case 'a':
         // Move left
@@ -1036,7 +1128,7 @@ void Keyboard(unsigned char key, int x, int y) {
             humanPosX -= moveSpeed * cos(DEG2RAD(humanRotY));
             humanPosZ -= moveSpeed * sin(DEG2RAD(humanRotY));
         }
-        facePosition = -90;
+        facePosition = 90;
         break;
     case 'd':
         // Move right
@@ -1044,7 +1136,7 @@ void Keyboard(unsigned char key, int x, int y) {
             humanPosX += moveSpeed * cos(DEG2RAD(humanRotY));
             humanPosZ += moveSpeed * sin(DEG2RAD(humanRotY));
         }
-        facePosition = 90;
+        facePosition = -90;
         break;
         break;
     case 'i':
@@ -1113,7 +1205,7 @@ void Special(int key, int x, int y) {
 
 const int WINDOW_WIDTH = 1500;
 const int WINDOW_HEIGHT = 1000;
-float remainingTime = 60.0; 
+float remainingTime = 60.0;
 //bool gameActive = true;
 
 void drawText(const char* text, int length, int x, int y) {
@@ -1243,12 +1335,12 @@ void display() {
         {
             drawWinScreen();
         }
-        
+
         return; // Skip the rest of the rendering
     }
     setupCamera();
 
-    
+
 
     drawPark();
     drawcar();
@@ -1263,7 +1355,7 @@ void display() {
     if (checkIceCreamCollision()) {
         iceCreamVisible = false; // Hide ice cream if collision detected
     }
-     drawIceCream(0.2, 0.05); // Draw ice cream only if visible
+    drawIceCream(0.2, 0.05); // Draw ice cream only if visible
 
 
     if (isTorusRotating) {
@@ -1299,7 +1391,7 @@ void display() {
     //drawIceCream(0.2, 0.05);
     //drawFrame();
     displayTimer();
-    
+
     glutPostRedisplay();
 
 
