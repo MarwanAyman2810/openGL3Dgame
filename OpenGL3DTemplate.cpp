@@ -494,46 +494,26 @@ void drawcar() {
     glPushMatrix();
     glTranslatef(-1, 0.3, -0);
 
-    glColor3f(0, 0, 1);
+    glColor3f(.0, 0.0, 0.0);
     glPushMatrix();                   // body
     glTranslatef(0, -0.15, 0);
-    glScalef(1., .15, 2);
+    glScalef(2., 1, 1);
     glutSolidCube(.15);
     glPopMatrix();
-    // Drawing cylinders connecting the body and wheels
-    // For front left wheel
-    glPushMatrix();
-    glColor3f(0.5, 0.5, 0.5); // Color for cylinder
-    glTranslatef(-0.075, -0.15, 0.125); // Position adjustment for cylinder
-    glRotatef(90, 0, 0, 1); // Rotate to align along the X-axis
-    drawCylinder(0.0125, 0.129, 10, 10); // Draw cylinder
-    glPopMatrix();
-
-    // Other wheels and cylinders can be added similarly
     glTranslatef(0, 0, .25);
-    glColor3f(1, 1, 0);
+    glColor3f(.5, 0.5, 0.5);
     glPushMatrix();
-    glTranslatef(-.2, -.2, 0);
+    glTranslatef(-.1, -.2, -0.15);
     glutSolidTorus(.01, .05, 8, 8);       // wheel
-    glPushMatrix();
-    glTranslatef(0, 0.01, 0); // Adjust position to connect to body
-    glRotatef(90, 0, 1, 0); // Rotate to align with X-Z axis
-    drawCylinder(.01, .4, 10, 10); // Cylinder parameters can be adjusted
-    glPopMatrix();
-    glTranslatef(.4, 0, 0);
+    glTranslatef(.2, 0, 0);
     glutSolidTorus(.01, .05, 8, 8);       // wheel
     glPopMatrix();
     glTranslatef(0, 0, -.5);
-    glColor3f(1, 0, 1);
+    glColor3f(.5, 0.5, 0.5);
     glPushMatrix();
-    glTranslatef(-.2, -.2, 0);
+    glTranslatef(-.1, -.2, 0.15);
     glutSolidTorus(.01, .05, 8, 8);      // wheel
-    glPushMatrix();
-    glTranslatef(0, 0.01, 0); // Adjust position to connect to body
-    glRotatef(90, 0, 1, 0); // Rotate to align with X-Z axis
-    drawCylinder(.01, .4, 10, 10); // Cylinder parameters can be adjusted
-    glPopMatrix();
-    glTranslatef(.4, 0, 0);
+    glTranslatef(.2, 0, 0);
     glutSolidTorus(.01, .05, 8, 8);        // wheel
     glPopMatrix();
     glPopMatrix();
@@ -817,6 +797,7 @@ void drawPark() {
         glRotatef(180, 1, 0, 0);
         drawTriangularPrism(prismHeight, prismBase, prismLength);
         glPopMatrix();
+
     }
     // Draw connecting ropes between fences
 
@@ -1349,7 +1330,7 @@ void display() {
         ferrisWheelAngle += 1; // Adjust the speed as needed
         //if (ferrisWheelAngle >= 360.0f) ferrisWheelAngle -= 360.0f;
     }
-    drawFerrisWheel(0, 0.8, -0.66);
+    drawFerrisWheel(0, 0.9, -0.66);
 
     drawHuman();
     if (checkIceCreamCollision()) {
