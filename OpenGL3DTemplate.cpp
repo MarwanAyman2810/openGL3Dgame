@@ -489,7 +489,58 @@ void drawCabinsOnTorus(float torusInnerRadius, float torusOuterRadius, int numCa
     }
 }
 
+void drawcar() {
+    //glColor3f(0, 0, 0);
+    glPushMatrix();
+    glTranslatef(-1, 0.3, -0);
 
+    glColor3f(0, 0, 1);
+    glPushMatrix();                   // body
+    glTranslatef(0, -0.15, 0);
+    glScalef(1., .15, 2);
+    glutSolidCube(.15);
+    glPopMatrix();
+    // Drawing cylinders connecting the body and wheels
+    // For front left wheel
+    glPushMatrix();
+    glColor3f(0.5, 0.5, 0.5); // Color for cylinder
+    glTranslatef(-0.075, -0.15, 0.125); // Position adjustment for cylinder
+    glRotatef(90, 0, 0, 1); // Rotate to align along the X-axis
+    drawCylinder(0.01, 0.125, 10, 10); // Draw cylinder
+    glPopMatrix();
+
+    // Other wheels and cylinders can be added similarly
+    glTranslatef(0, 0, .25);
+    glColor3f(1, 1, 0);
+    glPushMatrix();
+    glTranslatef(-.2, -.2, 0);
+    glutSolidTorus(.01, .05, 8, 8);       // wheel
+    glPushMatrix();
+    glTranslatef(0, 0.05, 0); // Adjust position to connect to body
+    glRotatef(90, 0, 1, 0); // Rotate to align with X-Z axis
+    drawCylinder(.01, .4, 10, 10); // Cylinder parameters can be adjusted
+    glPopMatrix();
+    glTranslatef(.4, 0, 0);
+    glutSolidTorus(.01, .05, 8, 8);       // wheel
+    glPopMatrix();
+    glTranslatef(0, 0, -.5);
+    glColor3f(1, 0, 1);
+    glPushMatrix();
+    glTranslatef(-.2, -.2, 0);
+    glutSolidTorus(.01, .05, 8, 8);      // wheel
+    glPushMatrix();
+    glTranslatef(0, 0.05, 0); // Adjust position to connect to body
+    glRotatef(90, 0, 1, 0); // Rotate to align with X-Z axis
+    drawCylinder(.01, .4, 10, 10); // Cylinder parameters can be adjusted
+    glPopMatrix();
+    glTranslatef(.4, 0, 0);
+    glutSolidTorus(.01, .05, 8, 8);        // wheel
+    glPopMatrix();
+    glPopMatrix();
+
+    glPopMatrix();
+
+}
 
 // Function to decorate the park
 void parkDecorator() {
@@ -1062,7 +1113,7 @@ void Special(int key, int x, int y) {
 
 const int WINDOW_WIDTH = 1500;
 const int WINDOW_HEIGHT = 1000;
-float remainingTime = 20.0; 
+float remainingTime = 60.0; 
 //bool gameActive = true;
 
 void drawText(const char* text, int length, int x, int y) {
@@ -1200,7 +1251,7 @@ void display() {
     
 
     drawPark();
-    
+    drawcar();
     drawIceCream(0.2, 0.05);
     if (isFerrisWheelRotating) {
         ferrisWheelAngle += 1; // Adjust the speed as needed
